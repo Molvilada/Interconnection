@@ -8,8 +8,8 @@ import org.junit.Test;
 
 public class TestModelo<T> {
 	
+	private static final int CAPACIDAD=100;
 	private Modelo modelo;
-	private static int CAPACIDAD=100;
 	
 	@Before
 	public void setUp1() {
@@ -22,7 +22,7 @@ public class TestModelo<T> {
 
 	@Test
 	public void testModelo() {
-		assertTrue(modelo!=null);
+        assertNotNull(modelo);
 		assertEquals(0, modelo.darTamano());  // Modelo con 0 elementos presentes.
 	}
 
@@ -33,8 +33,4 @@ public class TestModelo<T> {
 		assertEquals("No es el tamaño correcto", CAPACIDAD,x);
 		// TODO
 	}
-
-	
-
-	
 }
