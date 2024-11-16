@@ -9,3 +9,5 @@ public class Main {
 		controler.run();
 	}
 }
+
+// Comment: This is the main class of the program. It creates a new instance of the Controller class and runs the program.
