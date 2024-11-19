@@ -1,12 +1,7 @@
 package model.logic;
 
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.Comparator;
-
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
 
 import model.data_structures.ArregloDinamico;
 import model.data_structures.Country;
@@ -16,7 +11,6 @@ import model.data_structures.GrafoListaAdyacencia;
 import model.data_structures.ILista;
 import model.data_structures.ITablaSimbolos;
 import model.data_structures.Landing;
-import model.data_structures.ListaEncadenada;
 import model.data_structures.NodoTS;
 import model.data_structures.NullException;
 import model.data_structures.PilaEncadenada;
