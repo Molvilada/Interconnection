@@ -38,20 +38,15 @@ public class Modelo {
 	 * Atributos del modelo del mundo
 	 */
 	private ILista datos;
-	
 	private GrafoListaAdyacencia grafo;
-	
-	private ITablaSimbolos paises;
-	
-	private ITablaSimbolos points;
-	
-	private ITablaSimbolos landingidtabla;
-	
-	private ITablaSimbolos nombrecodigo;
+	private ITablaSimbolos<String, Country> paises;
+	private ITablaSimbolos<String, Landing> points;
+	private ITablaSimbolos<String, Vertex<String, Landing>> landingidtabla;
+	private ITablaSimbolos<String, String> nombrecodigo;
 
 	/**
 	 * Constructor del modelo del mundo con capacidad dada
-	 * @param tamano
+	 * @param capacidad
 	 */
 	public Modelo(int capacidad)
 	{
@@ -70,7 +65,7 @@ public class Modelo {
 
 	/**
 	 * Requerimiento buscar dato
-	 * @param dato Dato a buscar
+	 * @param i Dato a buscar
 	 * @return dato encontrado
 	 * @throws VacioException 
 	 * @throws PosException 
@@ -626,253 +621,22 @@ public class Modelo {
 		return tabla;
 	}
 
-	public void cargar() throws IOException
-	{
-		grafo= new GrafoListaAdyacencia(2);
-		paises= new TablaHashLinearProbing(2);
-		points= new  TablaHashLinearProbing(2);
-		landingidtabla= new TablaHashSeparteChaining(2);
-		nombrecodigo=new TablaHashSeparteChaining(2);
-		
-		Reader in = new FileReader("./data/countries.csv");
-		Iterable<CSVRecord> records = CSVFormat.RFC4180.withHeader().parse(in);
-		int contador=1;
-		for (CSVRecord record : records) 
-		{
-			if(!record.get(0).equals(""))
-			{
-				String countryName= record.get(0);
-				
-				String capitalName= record.get(1);
-				
-				double latitude= Double.parseDouble(record.get(2));
-				
-				double longitude= Double.parseDouble(record.get(3));
-				
-				String code= record.get(4);
-				
-				String continentName= record.get(5);
-				
-				float population= Float.parseFloat(record.get(6).replace(".", ""));
-				
-				double users= Double.parseDouble(record.get(7).replace(".", ""));;
-				
-				Country pais= new Country(countryName, capitalName, latitude, longitude, code, continentName, population, users);
-				
-				grafo.insertVertex(capitalName, pais);
-				paises.put(countryName, pais);
+	public void cargar() throws IOException {
+		grafo = new GrafoListaAdyacencia(2);
+		paises = new TablaHashLinearProbing<>(2);
+		points = new TablaHashLinearProbing<>(2);
+		landingidtabla = new TablaHashSeparteChaining<>(2);
+		nombrecodigo = new TablaHashSeparteChaining<>(2);
 
-				contador++;
-			}
+		CountryLoader countryLoader = new CountryLoader();
+		countryLoader.loadCountries(grafo, paises);
 
-		}
-		
-		
-		Reader in2 = new FileReader("./data/landing_points.csv");
-		Iterable<CSVRecord> records2 = CSVFormat.RFC4180.withHeader().parse(in2);
+		LandingPointLoader landingPointLoader = new LandingPointLoader();
+		landingPointLoader.loadLandingPoints(points);
 
-		int contador2=1;
-		
-		for (CSVRecord record2 : records2) 
-		{
-
-			String landingId= record2.get(0);
-			
-			String id=record2.get(1);
-			
-			String[] x= record2.get(2).split(", ");
-			
-			String name= x[0];
-			
-			String paisnombre= x[x.length-1];
-			
-			double latitude= Double.parseDouble(record2.get(3));
-			
-			double longitude= Double.parseDouble(record2.get(4));
-			
-			Landing landing= new Landing(landingId, id, name, paisnombre, latitude, longitude);
-			
-			points.put(landingId, landing);
-			
-			Country pais= null;
-		}
-		
-		
-		Reader in3 = new FileReader("./data/connections.csv");
-		Iterable<CSVRecord> records3 = CSVFormat.RFC4180.withHeader().parse(in3);
-
-		int contador3=1;
-		for (CSVRecord record3 : records3) 
-		{
-			String origin= record3.get(0);
-
-			String destination= record3.get(1);
-
-			String cableid= record3.get(3);
-
-			String[] lengths= record3.get(4).split(" ");
-
-			String length= lengths[0];
-
-
-			Landing landing1= (Landing) points.get(origin);
-			
-			grafo.insertVertex(landing1.getLandingId()+ cableid, landing1);
-			
-			Vertex vertice1= grafo.getVertex(landing1.getLandingId()+ cableid);
-
-			
-			Landing landing2= (Landing) points.get(destination);
-
-			grafo.insertVertex(landing2.getLandingId()+ cableid, landing2);
-			
-			Vertex vertice2= grafo.getVertex(landing2.getLandingId()+ cableid);
-			
-			
-			String nombrepais1= landing1.getPais();
-			
-			String nombrepais2= landing2.getPais();
-					
-			Country pais1=null;
-			Country pais2=null;
-			if(nombrepais1.equals("Côte d'Ivoire"))
-			{
-				pais1= (Country) paises.get("Cote d'Ivoire");
-			}
-			else if(nombrepais2.equals("Côte d'Ivoire"))
-			{
-				pais2= (Country) paises.get("Cote d'Ivoire");
-			}
-			else
-			{
-				pais1= (Country) paises.get(nombrepais1);
-				pais2= (Country) paises.get(nombrepais2);
-			}
-			
-
-			if(pais1!=null)
-			{
-				float weight=distancia(pais1.getLongitude(), pais1.getLatitude(), landing1.getLongitude(), landing1.getLatitude());
-
-				grafo.addEdge(pais1.getCapitalName(),landing1.getLandingId()+ cableid , weight);
-			}
-	
-			if(pais2!=null)
-			{
-				float weight2=distancia(pais2.getLongitude(), pais2.getLatitude(), landing1.getLongitude(), landing1.getLatitude());
-
-				grafo.addEdge(pais2.getCapitalName(),landing2.getLandingId()+ cableid , weight2);
-
-			}
-			
-
-			if(landing1!=null)
-			{
-				if(landing2!=null)
-				{
-					Edge existe1= grafo.getEdge(landing1.getLandingId() + cableid, landing2.getLandingId() + cableid);
-	
-					if(existe1==null)
-					{
-						float weight3=distancia(landing1.getLongitude(), landing1.getLatitude(), landing2.getLongitude(), landing2.getLatitude());
-						grafo.addEdge(landing1.getLandingId() + cableid, landing2.getLandingId() + cableid, weight3);
-					}
-					else
-					{
-						float weight3=distancia(landing1.getLongitude(), landing1.getLatitude(), landing2.getLongitude(), landing2.getLatitude());
-						float peso3= existe1.getWeight();
-	
-						if(weight3> peso3)
-						{
-							existe1.setWeight(weight3);
-						}
-					}
-				}
-			}
-			
-			try
-			{
-				
-				ILista elementopc= (ILista) landingidtabla.get(landing1.getLandingId());
-				if (elementopc==null)
-				{
-					ILista valores=new ArregloDinamico(1);
-					valores.insertElement(vertice1, valores.size() +1);
-
-					landingidtabla.put(landing1.getLandingId(), valores);
-					
-				}
-				else if (elementopc!=null)
-				{
-					elementopc.insertElement(vertice1, elementopc.size()+1);
-				}
-			
-				elementopc= (ILista) landingidtabla.get(landing2.getLandingId());
-	
-				if (elementopc==null)
-				{
-					ILista valores=new ArregloDinamico(1);
-					valores.insertElement(vertice2, valores.size() +1);
-	
-					landingidtabla.put(landing2.getLandingId(), valores);
-	
-				}
-				else if (elementopc!=null)
-				{
-					elementopc.insertElement(vertice2, elementopc.size()+1);
-	
-				}
-				
-				elementopc= (ILista) nombrecodigo.get(landing1.getLandingId());
-				
-				if (elementopc==null)
-				{
-					String nombre=landing1.getName();
-					String codigo=landing1.getLandingId();
-
-					nombrecodigo.put(nombre, codigo);
-	
-				}
-			}
-			catch(PosException | NullException e)
-			{
-				e.printStackTrace();
-			}
-			
-			
-
-		}
-		
-		try
-		{
-			ILista valores = landingidtabla.valueSet();
-			
-			for(int i=1; i<=valores.size(); i++)
-			{
-				for(int j=1; j<=((ILista) valores.getElement(i)).size(); j++)
-				{
-					Vertex vertice1;
-					if((ILista) valores.getElement(i) != null)
-					{
-						vertice1= (Vertex) ((ILista) valores.getElement(i)).getElement(j);
-						for(int k=2; k<= ((ILista) valores.getElement(i)).size(); k++)
-						{
-							Vertex vertice2= (Vertex) ((ILista) valores.getElement(i)).getElement(k);
-							grafo.addEdge(vertice1.getId(), vertice2.getId(), 100);
-						}
-					}
-				}
-			}
-		}
-		catch(PosException | VacioException  e)
-		{
-			e.printStackTrace();
-		}
-		
-	
-		
-	
-}
+		ConnectionLoader connectionLoader = new ConnectionLoader();
+		connectionLoader.loadConnections(grafo, points, nombrecodigo, landingidtabla);
+	}
 	
 	private static float distancia(double lon1, double lat1, double lon2, double lat2) 
 	{
