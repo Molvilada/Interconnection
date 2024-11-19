@@ -97,59 +97,25 @@ public class Modelo {
 		return fragmento;
 
 	}
-	
-	
-	public String req1String(String punto1, String punto2)
-	{
-		ITablaSimbolos tabla= grafo.getSSC();
-		ILista lista= tabla.valueSet();
-		int max=0;
-		for(int i=1; i<= lista.size(); i++)
-		{
-			try
-			{
-				if((int) lista.getElement(i)> max)
-				{
-					max= (int) lista.getElement(i);
-				}
-			}
-			catch(PosException | VacioException  e)
-			{
-				System.out.println(e.toString());
-			}
-			
+
+
+	public String req1String(String punto1, String punto2) {
+		// Inicializar el analizador de clústeres con los atributos necesarios
+		ClusterAnalyzer analyzer = new ClusterAnalyzer(grafo.getSSC(), nombrecodigo, landingidtabla); // Fix this line
+
+		// Obtener el número máximo de componentes conectados
+		int maxConnectedComponents = analyzer.getMaxConnectedComponents();
+		String fragmento = "La cantidad de componentes conectados es: " + maxConnectedComponents;
+
+		// Verificar si los puntos pertenecen al mismo clúster
+		boolean sameCluster = analyzer.arePointsInSameCluster(punto1, punto2);
+		if (sameCluster) {
+			fragmento += "\n Los landing points pertenecen al mismo clúster";
+		} else {
+			fragmento += "\n Los landing points no pertenecen al mismo clúster";
 		}
-		
-		String fragmento="La cantidad de componentes conectados es: " + max;
-		
-		try 
-		{
-			String codigo1= (String) nombrecodigo.get(punto1);
-			String codigo2= (String) nombrecodigo.get(punto2);
-			Vertex vertice1= (Vertex) ((ILista) landingidtabla.get(codigo1)).getElement(1);
-			Vertex vertice2= (Vertex) ((ILista) landingidtabla.get(codigo2)).getElement(1);
-			
-			int elemento1= (int) tabla.get(vertice1.getId());
-			int elemento2= (int) tabla.get(vertice2.getId());
-			
-			if(elemento1== elemento2)
-			{
-				fragmento+= "\n Los landing points pertenecen al mismo clúster";
-			}
-			else
-			{
-				fragmento+= "\n Los landing points no pertenecen al mismo clúster";
-			}
-		} 
-		catch (PosException | VacioException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
+
 		return fragmento;
-		
 	}
 	
 	public String req2String()
