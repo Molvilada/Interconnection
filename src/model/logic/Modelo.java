@@ -20,6 +20,7 @@ import model.data_structures.TablaHashSeparteChaining;
 import model.data_structures.VacioException;
 import model.data_structures.Vertex;
 import model.data_structures.YoutubeVideo;
+import utils.DistanceCalculator;
 import utils.Ordenamiento;
 
 
@@ -144,70 +145,61 @@ public class Modelo {
 		}
 		return fragmento;
 	}
-	
-	public String req3String(String pais1, String pais2)
-	{
-		Country pais11= (Country) paises.get(pais1);
-		Country pais22= (Country) paises.get(pais2);
-		String capital1=pais11.getCapitalName();
-		String capital2=pais22.getCapitalName();
 
-		PilaEncadenada pila= grafo.minPath(capital1, capital2);
+	public String req3String(String pais1, String pais2) {
+		Country paisOrigen = paises.get(pais1);
+		Country paisDestino = paises.get(pais2);
 
-		float distancia=0;
-
-		String fragmento="Ruta: ";
-
-		float disttotal=0;
-		
-		double longorigen=0;
-		double longdestino=0;
-		double latorigen=0;
-		double latdestino=0;
-		String origennombre="";
-		String destinonombre="";
-
-		while(!pila.isEmpty())
-		{
-			Edge arco= ((Edge)pila.pop());
-
-			if(arco.getSource().getInfo().getClass().getName().equals("model.data_structures.Landing"))
-			{
-				longorigen=((Landing)arco.getSource().getInfo()).getLongitude();
-				latorigen=((Landing)arco.getSource().getInfo()).getLongitude();
-				origennombre=((Landing)arco.getSource().getInfo()).getLandingId();
-			}
-			if(arco.getSource().getInfo().getClass().getName().equals("model.data_structures.Country"))
-			{
-				longorigen=((Country)arco.getSource().getInfo()).getLongitude();
-				latorigen=((Country)arco.getSource().getInfo()).getLongitude();
-				origennombre=((Country)arco.getSource().getInfo()).getCapitalName();
-			}
-			if (arco.getDestination().getInfo().getClass().getName().equals("model.data_structures.Landing"))
-			{
-				latdestino=((Landing)arco.getDestination().getInfo()).getLatitude();
-				longdestino=((Landing)arco.getDestination().getInfo()).getLatitude();
-				destinonombre=((Landing)arco.getDestination().getInfo()).getLandingId();
-			}
-			if(arco.getDestination().getInfo().getClass().getName().equals("model.data_structures.Country"))
-			{
-				longdestino=((Country)arco.getDestination().getInfo()).getLatitude();
-				latdestino=((Country)arco.getDestination().getInfo()).getLatitude();
-				destinonombre=((Country)arco.getDestination().getInfo()).getCapitalName();
-			}
-
-			distancia = distancia(longdestino,latdestino, longorigen, latorigen);
-			fragmento+= "\n \n Origen: " +origennombre + "  Destino: " + destinonombre + "  Distancia: " + distancia;
-			disttotal+=distancia;
-
+		if (paisOrigen == null || paisDestino == null) {
+			return "Uno o ambos países no existen en el sistema.";
 		}
 
-		fragmento+= "\n Distancia total: " + disttotal;	
+		String capital1 = paisOrigen.getCapitalName();
+		String capital2 = paisDestino.getCapitalName();
 
-		return fragmento;
-		
+		PathAnalyzer pathAnalyzer = new PathAnalyzer(grafo);
+		PilaEncadenada<Edge<String, Landing>> camino = pathAnalyzer.getShortestPath(capital1, capital2);
+
+		if (camino == null || camino.isEmpty()) {
+			return "No hay un camino entre las capitales de los países.";
+		}
+
+		StringBuilder fragmento = new StringBuilder("Ruta:");
+		float distanciaTotal = 0;
+
+		// Fail-safe: Contador de ciclos y límite máximo
+		int contadorCiclos = 0;
+		final int LIMITE_CICLOS = 100;
+
+		while (!camino.isEmpty()) {
+			contadorCiclos++;
+			if (contadorCiclos > LIMITE_CICLOS) {
+				fragmento.append("\nEl cálculo de la ruta excedió el límite de ciclos permitidos.");
+				fragmento.append("\nPor favor, revise los datos de entrada o la configuración del grafo.");
+				return fragmento.toString();
+			}
+
+			Edge<String, Landing> arco = camino.pop();
+			Vertex<String, Landing> origen = arco.getSource();
+			Vertex<String, Landing> destino = arco.getDestination();
+
+			String nombreOrigen = origen.getInfo().getLandingId();
+			String nombreDestino = destino.getInfo().getLandingId();
+
+			float distancia = DistanceCalculator.calculateDistance(
+					origen.getInfo().getLongitude(), origen.getInfo().getLatitude(),
+					destino.getInfo().getLongitude(), destino.getInfo().getLatitude());
+			distanciaTotal += distancia;
+
+			fragmento.append(String.format("\nOrigen: %s  Destino: %s  Distancia: %.2f km",
+					nombreOrigen, nombreDestino, distancia));
+		}
+
+		fragmento.append("\nDistancia total: ").append(distanciaTotal).append(" km");
+		return fragmento.toString();
 	}
-	
+
+
 	public String req4String()
 	{
 		String fragmento="";

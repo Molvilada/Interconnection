@@ -38,10 +38,8 @@ public class Edge <K extends Comparable<K>, V extends Comparable <V>> implements
 	}
 
 	@Override
-	public int compareTo(Edge o) 
-	{
-		// TODO Auto-generated method stub
-		return 0;
+	public int compareTo(Edge<K, V> other) {
+		return Float.compare(this.weight, other.weight);
 	}
 }
 
