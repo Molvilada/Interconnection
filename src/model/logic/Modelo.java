@@ -200,90 +200,50 @@ public class Modelo {
 	}
 
 
-	public String req4String()
-	{
-		String fragmento="";
-		ILista lista1= landingidtabla.valueSet();
-		
-		String llave="";
-		
-		int distancia=0;
-		
-		try
-		{
-			int max=0;
-			for(int i=1; i<= lista1.size(); i++)
-			{
-				if(((ILista)lista1.getElement(i)).size()> max)
-				{
-					max= ((ILista)lista1.getElement(i)).size();
-					llave= (String) ((Vertex)((ILista)lista1.getElement(i)).getElement(1)).getId();
-				}
-			}
-			
-			ILista lista2= grafo.mstPrimLazy(llave);
-			
-			ITablaSimbolos tabla= new TablaHashSeparteChaining<>(2);
-			ILista candidatos= new ArregloDinamico<>(1);
-			for(int i=1; i<= lista2.size(); i++)
-			{
-				Edge arco= ((Edge) lista2.getElement(i));
-				distancia+= arco.getWeight();
-				
-				candidatos.insertElement(arco.getSource(), candidatos.size()+1);
-				
-				candidatos.insertElement(arco.getDestination(), candidatos.size()+1);
-				
-				tabla.put(arco.getDestination().getId(),arco.getSource() );
-			}
-			
-			ILista unificado= unificar(candidatos, "Vertice");
-			fragmento+= " La cantidad de nodos conectada a la red de expansión mínima es: " + unificado.size() + "\n El costo total es de: " + distancia;
-			
-			int maximo=0;
-			int contador=0;
-			PilaEncadenada caminomax=new PilaEncadenada();
-			for(int i=1; i<= unificado.size(); i++)
-			{
+	public String req4String() {
+		StringBuilder fragmento = new StringBuilder();
 
-				PilaEncadenada path= new PilaEncadenada();
-				String idBusqueda= (String) ((Vertex) unificado.getElement(i)).getId();
-				Vertex actual;
+		try {
+			// Crear instancia de MSTAnalyzer
+			MSTAnalyzer<String, Landing> mstAnalyzer = new MSTAnalyzer<>(grafo);
 
-				while( (actual= (Vertex) tabla.get(idBusqueda))!=null && actual.getInfo()!=null)
-				{
-					path.push(actual);
-					idBusqueda= (String) ((Vertex)actual).getId();
-					contador++;
-				}
-				
-				if(contador>maximo)
-				{
-					caminomax=path;
-				}
+			// Encontrar el vértice inicial con mayor número de conexiones
+			String initialVertex = mstAnalyzer.findInitialVertex(landingidtabla);
+			if (initialVertex == null) {
+				return "No se encontró un vértice inicial válido.";
 			}
-			
-			fragmento+="\n La rama más larga está dada por lo vértices: ";
-			for(int i=1; i<=caminomax.size(); i++)
-			{
-				Vertex pop= (Vertex) caminomax.pop();
-				fragmento+= "\n Id " + i + " : "+ pop.getId();
+
+			// Calcular el MST
+			ILista<Edge<String, Landing>> mstEdges = mstAnalyzer.calculateMST(initialVertex);
+			int totalCost = 0;
+
+			// Calcular costo total del MST
+			for (int i = 1; i <= mstEdges.size(); i++) {
+				totalCost += mstEdges.getElement(i).getWeight();
 			}
+
+			// Calcular la rama más larga
+			PilaEncadenada<Vertex<String, Landing>> longestPath = mstAnalyzer.findLongestPath(mstEdges);
+
+			// Construir resumen
+			fragmento.append("La cantidad de nodos conectados a la red de expansión mínima es: ")
+					.append(mstEdges.size())
+					.append("\nEl costo total es de: ")
+					.append(totalCost);
+
+			fragmento.append("\nLa rama más larga está dada por los vértices:");
+			int i = 1;
+			while (!longestPath.isEmpty()) {
+				Vertex<String, Landing> vertex = longestPath.pop();
+				fragmento.append("\nId ").append(i++).append(" : ").append(vertex.getId());
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "Ocurrió un error al calcular el MST.";
 		}
-		catch (PosException | VacioException | NullException e1) 
-		{
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		if(fragmento.equals(""))
-		{	
-			return "No hay ninguna rama";
-		}
-		else 
-		{
-			return fragmento;
-		}
+
+		return fragmento.toString();
 	}
 	
 	public ILista req5(String punto)
