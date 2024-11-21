@@ -73,17 +73,6 @@ public class Modelo {
         return datos.size();
     }
 
-    /**
-     * Requerimiento buscar dato
-     *
-     * @param i Dato a buscar
-     * @return dato encontrado
-     * @throws VacioException
-     * @throws PosException
-     */
-    public YoutubeVideo getElement(int i) throws PosException, VacioException {
-        return (YoutubeVideo) datos.getElement(i);
-    }
 
     public String toString() {
         String fragmento = "Info básica:";
