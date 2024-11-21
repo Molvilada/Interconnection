@@ -34,7 +34,7 @@ public class Modelo {
     /**
      * Constructor del modelo del mundo con capacidad dada
      *
-     * @param tamano
+     * @param capacidad
      */
     public Modelo(int capacidad) {
         datos = new ArregloDinamico<>(capacidad);
@@ -76,7 +76,7 @@ public class Modelo {
     /**
      * Requerimiento buscar dato
      *
-     * @param dato Dato a buscar
+     * @param i Dato a buscar
      * @return dato encontrado
      * @throws VacioException
      * @throws PosException
