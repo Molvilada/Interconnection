@@ -56,25 +56,7 @@ public class MinPQ<K extends Comparable<K> ,V extends Comparable <V>>
 	{
 		return tamano;
 	}
-	
-	public NodoTS<K, V> min()
-	{
-		try {
-			if(tamano > 1) 
-			{
-				return arbol.getElement(1);
-			}
-			else 
-			{
-				return null;
-			}
-		} catch (PosException | VacioException e) 
-		{
-			e.printStackTrace();
-		}
-		
-		return null;
-	}
+
 	
 	public void sink(ILista<NodoTS<K, V>> lista, int pos)
 	{

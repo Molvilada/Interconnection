@@ -18,21 +18,14 @@ public class GrafoListaAdyacencia <K extends Comparable<K> ,V extends Comparable
 		verticesLista= new ArregloDinamico<>(1);
 	}
 	
-	public boolean containsVertex(K id)
-	{
-		return vertices.contains(id);
-	}
+
 	
 	public int numVertices()
 	{
 		return vertices.size();
 	}
 	
-	public int numEdges()
-	{
-		return numEdges;
-	}
-	
+
 	public void insertVertex(K id, V value)
 	{
 		vertices.put(id, new Vertex<K, V>(id, value));
@@ -90,32 +83,7 @@ public class GrafoListaAdyacencia <K extends Comparable<K> ,V extends Comparable
 			return origen.getEdge(idD);
 		}
 	}
-	
-	public ILista<Edge<K,V>> adjacentEdges(K id)
-	{
-		Vertex<K,V> origen= vertices.get(id);
-		return origen.edges();
-	}
-	
-	public ILista<Vertex<K, V>> adjacentVertex(K id)
-	{
-		Vertex<K,V> origen= vertices.get(id);
-		
-		return origen.vertices();
-		
-	}
-	
-	public int indegree(K vertex)
-	{
-		Vertex<K,V> origen= vertices.get(vertex);
-		return origen.indegree();
-	}
-	
-	public int outdegree(K vertex)
-	{
-		Vertex<K,V> origen= vertices.get(vertex);
-		return origen.outdegree();
-	}
+
 	
 	public ILista<Edge<K, V>> edges()
 	{
@@ -140,71 +108,8 @@ public class GrafoListaAdyacencia <K extends Comparable<K> ,V extends Comparable
 			}
 		}
 	}
-	
-	public void dfs(K id)
-	{
-		Vertex<K, V> inicio= getVertex(id);
-		inicio.dfs(null);
-		unmark();
-	}
-	
-	public void bfs(K id)
-	{
-		Vertex<K, V> inicio= getVertex(id);
-		inicio.bfs();
-		unmark();
-	}
-	
-	public Edge<K, V>  arcoMin()
-	{
-		Edge<K, V> minimo=null;
-		try 
-		{
-			minimo=arcos.getElement(1);
-			float min=arcos.getElement(1).getWeight();
-			for(int i=2; i<=arcos.size(); i++)
-			{
-				if(arcos.getElement(i).getWeight()< min)
-				{
-					minimo=arcos.getElement(i);
-					min=arcos.getElement(i).getWeight();
-				}
-			}
-		} 
-		catch (PosException | VacioException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return minimo;
-		
-	}
-	
-	public Edge<K, V>  arcoMax()
-	{
-		Edge<K, V> maximo=null;
-		try 
-		{
-			float max=0;
-			for(int i=2; i<=arcos.size(); i++)
-			{
-				if(arcos.getElement(i).getWeight()> max)
-				{
-					maximo=arcos.getElement(i);
-					max=arcos.getElement(i).getWeight();
-				}
-			}
-		} 
-		catch (PosException | VacioException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return maximo;
-		
-	}
+
+
 	
 	public GrafoListaAdyacencia<K, V> reverse()
 	{
@@ -317,8 +222,4 @@ public class GrafoListaAdyacencia <K extends Comparable<K> ,V extends Comparable
 		unmark();
 		return path;
 	}
-	
-	
-
-	
 }

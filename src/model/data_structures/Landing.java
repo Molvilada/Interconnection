@@ -83,10 +83,6 @@ public class Landing implements Comparable <Landing>
 		this.pais = pais;
 	}
 
-	public String getCodigo() {
-		return codigo;
-	}
-
 	public void setCodigo(String codigo) {
 		this.codigo = codigo;
 	}
