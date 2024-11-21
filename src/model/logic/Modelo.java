@@ -99,7 +99,7 @@ public class Modelo {
 
     }
 
-    public String req1String(String punto1, String punto2) {
+    private int calcularComponentesConectados() {
         ITablaSimbolos tabla = grafo.getSSC();
         ILista lista = tabla.valueSet();
         int max = 0;
@@ -109,32 +109,39 @@ public class Modelo {
                     max = (int) lista.getElement(i);
                 }
             } catch (PosException | VacioException e) {
-                System.out.println(e);
+                e.printStackTrace();
             }
-
         }
+        return max;
+    }
 
-        String fragmento = "La cantidad de componentes conectados es: " + max;
-
+    private boolean verificarMismoCluster(String punto1, String punto2) {
         try {
             String codigo1 = (String) nombrecodigo.get(punto1);
             String codigo2 = (String) nombrecodigo.get(punto2);
             Vertex vertice1 = (Vertex) ((ILista) landingidtabla.get(codigo1)).getElement(1);
             Vertex vertice2 = (Vertex) ((ILista) landingidtabla.get(codigo2)).getElement(1);
 
+            ITablaSimbolos tabla = grafo.getSSC();
             int elemento1 = (int) tabla.get(vertice1.getId());
             int elemento2 = (int) tabla.get(vertice2.getId());
 
-            if (elemento1 == elemento2) {
-                fragmento += "\n Los landing points pertenecen al mismo clúster";
-            } else {
-                fragmento += "\n Los landing points no pertenecen al mismo clúster";
-            }
+            return elemento1 == elemento2;
         } catch (PosException | VacioException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            return false;
         }
+    }
 
+    public String req1String(String punto1, String punto2) {
+        int componentesConectados = calcularComponentesConectados();
+        String fragmento = "La cantidad de componentes conectados es: " + componentesConectados;
+
+        if (verificarMismoCluster(punto1, punto2)) {
+            fragmento += "\n Los landing points pertenecen al mismo clúster";
+        } else {
+            fragmento += "\n Los landing points no pertenecen al mismo clúster";
+        }
 
         return fragmento;
 
@@ -628,7 +635,7 @@ public class Modelo {
         actualizarTablaLanding(landing1, vertice1);
         actualizarTablaLanding(landing2, vertice2);
         actualizarNombreCodigo(nombrecodigo, landing1);
-		
+
     }
 
     private void cargarConexiones() throws IOException {
