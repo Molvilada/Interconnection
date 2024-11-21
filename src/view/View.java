@@ -1,6 +1,5 @@
 package view;
 
-import model.data_structures.TablaSimbolos;
 import model.logic.Modelo;
 
 public class View 

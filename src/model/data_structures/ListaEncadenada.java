@@ -1,7 +1,5 @@
 package model.data_structures;
 
-import java.util.Comparator;
-
 public class ListaEncadenada <T extends Comparable <T>> implements ILista<T>{
 
 	private Nodo<T> first;
@@ -16,13 +14,7 @@ public class ListaEncadenada <T extends Comparable <T>> implements ILista<T>{
 		last=null;
 		size=0;
 	}
-	
-	public ListaEncadenada(T element)
-	{
-		first= new Nodo<T>(element);
-		last= first;
-		size=1;
-	}
+
 	
 	//Siempre se llama a insert o a delete primero, esos métodos manejan los casos de que el elemento sea null, 
 	//isEmpty o que la posición no sea válida

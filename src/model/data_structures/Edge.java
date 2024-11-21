@@ -21,11 +21,7 @@ public class Edge <K extends Comparable<K>, V extends Comparable <V>> implements
 	{
 		return destination;
 	}
-	
-	public float weight()
-	{
-		return weight;
-	}
+
 	
 	public void setWeight(float weight)
 	{
