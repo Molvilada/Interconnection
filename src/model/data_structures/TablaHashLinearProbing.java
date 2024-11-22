@@ -47,12 +47,10 @@ public class TablaHashLinearProbing<K extends Comparable<K>, V extends Comparabl
         return posicionRetornar;
     }
 
-    @Override
-    public V get(K key) {
+    private Object[] searchNode(K key) {
         int posicion = hash(key);
-        V retornar = null;
         boolean encontroNull = false;
-
+        V retornar = null;
         while (retornar == null && !encontroNull) {
             NodoTS<K, V> nodoActual;
             try {
@@ -75,36 +73,22 @@ public class TablaHashLinearProbing<K extends Comparable<K>, V extends Comparabl
             }
         }
 
-        return retornar;
+        return new Object[]{retornar, posicion};
+    }
+
+
+    @Override
+    public V get(K key) {
+        return (V) searchNode(key)[0];
     }
 
     @Override
     public V remove(K key) {
-        int posicion = hash(key);
         V retornar = null;
-        boolean encontroNull = false;
-
         try {
-
-            while (retornar == null && !encontroNull) {
-                NodoTS<K, V> nodoActual;
-
-                nodoActual = listaNodos.getElement(posicion);
-                if (nodoActual == null) {
-                    encontroNull = true;
-                } else if (!nodoActual.isEmpty() && nodoActual.getKey().compareTo(key) == 0) {
-                    retornar = nodoActual.getValue();
-                } else {
-                    posicion++;
-
-                    if (posicion > tamanoTabla) {
-                        posicion = 1;
-                    }
-                }
-            }
-
+            retornar = (V) searchNode(key)[0];
             if (retornar != null) {
-                listaNodos.getElement(posicion).setEmpty();
+                listaNodos.getElement((Integer) searchNode(key)[1]).setEmpty();
             } else {
                 throw new PosException("No está el elemento");
             }
