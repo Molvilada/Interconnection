@@ -99,7 +99,7 @@ public class Modelo {
 
     }
 
-    public String req1String(String punto1, String punto2) {
+    private int calcularComponentesConectados() {
         ITablaSimbolos tabla = grafo.getSSC();
         ILista lista = tabla.valueSet();
         int max = 0;
@@ -109,54 +109,64 @@ public class Modelo {
                     max = (int) lista.getElement(i);
                 }
             } catch (PosException | VacioException e) {
-                System.out.println(e);
+                e.printStackTrace();
             }
-
         }
+        return max;
+    }
 
-        String fragmento = "La cantidad de componentes conectados es: " + max;
-
+    private boolean verificarMismoCluster(String punto1, String punto2) {
         try {
             String codigo1 = (String) nombrecodigo.get(punto1);
             String codigo2 = (String) nombrecodigo.get(punto2);
             Vertex vertice1 = (Vertex) ((ILista) landingidtabla.get(codigo1)).getElement(1);
             Vertex vertice2 = (Vertex) ((ILista) landingidtabla.get(codigo2)).getElement(1);
 
+            ITablaSimbolos tabla = grafo.getSSC();
             int elemento1 = (int) tabla.get(vertice1.getId());
             int elemento2 = (int) tabla.get(vertice2.getId());
 
-            if (elemento1 == elemento2) {
-                fragmento += "\n Los landing points pertenecen al mismo clúster";
-            } else {
-                fragmento += "\n Los landing points no pertenecen al mismo clúster";
-            }
+            return elemento1 == elemento2;
         } catch (PosException | VacioException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            return false;
         }
+    }
 
+    public String req1String(String punto1, String punto2) {
+        int componentesConectados = calcularComponentesConectados();
+        String fragmento = "La cantidad de componentes conectados es: " + componentesConectados;
+
+        if (verificarMismoCluster(punto1, punto2)) {
+            fragmento += "\n Los landing points pertenecen al mismo clúster";
+        } else {
+            fragmento += "\n Los landing points no pertenecen al mismo clúster";
+        }
 
         return fragmento;
 
     }
 
+    private int calcularCantidadConexiones(ILista vertices) throws PosException, VacioException {
+        int cantidad = 0;
+        for (int i = 1; i <= vertices.size(); i++) {
+            cantidad += ((Vertex) vertices.getElement(i)).edges().size();
+        }
+        return cantidad;
+    }
+
+
     public String req2String() {
         String fragmento = "";
-
         ILista lista = landingidtabla.valueSet();
-
-        int cantidad = 0;
-
         int contador = 0;
 
         for (int i = 1; i <= lista.size(); i++) {
             try {
-                if (((ILista) lista.getElement(i)).size() > 1 && contador <= 10) {
+                ILista landingVertices = (ILista) lista.getElement(i);
+                if (landingVertices.size() > 1 && contador < 10) {
                     Landing landing = (Landing) ((Vertex) ((ILista) lista.getElement(i)).getElement(1)).getInfo();
-
-                    for (int j = 1; j <= ((ILista) lista.getElement(i)).size(); j++) {
-                        cantidad += ((Vertex) ((ILista) lista.getElement(i)).getElement(j)).edges().size();
-                    }
+                    int cantidad = calcularCantidadConexiones(landingVertices);
 
                     fragmento += "\n Landing " + "\n Nombre: " + landing.getName() + "\n País: " + landing.getPais() + "\n Id: " + landing.getId() + "\n Cantidad: " + cantidad;
 
@@ -169,8 +179,26 @@ public class Modelo {
         }
 
         return fragmento;
-
     }
+
+    /**
+     * Obtiene los datos necesarios de un vértice: longitud, latitud y nombre.
+     *
+     * @param vertice El vértice a procesar.
+     * @return Un arreglo de tamaño 3: [logintud, latitud, nombre].
+     */
+    private Object[] obtenerDatosVertice(Vertex vertice) {
+        Object info = vertice.getInfo();
+        if (info instanceof Landing) {
+            Landing landing = (Landing) info;
+            return new Object[]{landing.getLongitude(), landing.getLatitude(), landing.getLandingId()};
+        } else if (info instanceof Country) {
+            Country country = (Country) info;
+            return new Object[]{country.getLongitude(), country.getLatitude(), country.getCapitalName()};
+        }
+        return new Object[]{0, 0, "Desconocido"};
+    }
+
 
     public String req3String(String pais1, String pais2) {
         Country pais11 = (Country) paises.get(pais1);
@@ -182,50 +210,32 @@ public class Modelo {
 
         float distancia = 0;
 
-        String fragmento = "Ruta: ";
+        StringBuilder fragmento = new StringBuilder("Ruta: ");
 
         float disttotal = 0;
-
-        double longorigen = 0;
-        double longdestino = 0;
-        double latorigen = 0;
-        double latdestino = 0;
-        String origennombre = "";
-        String destinonombre = "";
 
         while (!pila.isEmpty()) {
             Edge arco = ((Edge) pila.pop());
 
-            if (arco.getSource().getInfo().getClass().getName().equals("model.data_structures.Landing")) {
-                longorigen = ((Landing) arco.getSource().getInfo()).getLongitude();
-                latorigen = ((Landing) arco.getSource().getInfo()).getLongitude();
-                origennombre = ((Landing) arco.getSource().getInfo()).getLandingId();
-            }
-            if (arco.getSource().getInfo().getClass().getName().equals("model.data_structures.Country")) {
-                longorigen = ((Country) arco.getSource().getInfo()).getLongitude();
-                latorigen = ((Country) arco.getSource().getInfo()).getLongitude();
-                origennombre = ((Country) arco.getSource().getInfo()).getCapitalName();
-            }
-            if (arco.getDestination().getInfo().getClass().getName().equals("model.data_structures.Landing")) {
-                latdestino = ((Landing) arco.getDestination().getInfo()).getLatitude();
-                longdestino = ((Landing) arco.getDestination().getInfo()).getLatitude();
-                destinonombre = ((Landing) arco.getDestination().getInfo()).getLandingId();
-            }
-            if (arco.getDestination().getInfo().getClass().getName().equals("model.data_structures.Country")) {
-                longdestino = ((Country) arco.getDestination().getInfo()).getLatitude();
-                latdestino = ((Country) arco.getDestination().getInfo()).getLatitude();
-                destinonombre = ((Country) arco.getDestination().getInfo()).getCapitalName();
-            }
+            Object[] origenData = obtenerDatosVertice(arco.getSource());
+            double longorigen = (double) origenData[0];
+            double latorigen = (double) origenData[0];
+            String origennombre = origenData[2].toString();
+
+            Object[] destinoData = obtenerDatosVertice(arco.getDestination());
+            double latdestino = (double) destinoData[1];
+            double longdestino = (double) destinoData[1];
+            String destinonombre = destinoData[2].toString();
 
             distancia = distancia(longdestino, latdestino, longorigen, latorigen);
-            fragmento += "\n \n Origen: " + origennombre + "  Destino: " + destinonombre + "  Distancia: " + distancia;
+            fragmento.append("\n \n Origen: ").append(origennombre).append("  Destino: ").append(destinonombre).append("  Distancia: ").append(distancia);
             disttotal += distancia;
 
         }
 
-        fragmento += "\n Distancia total: " + disttotal;
+        fragmento.append("\n Distancia total: ").append(disttotal);
 
-        return fragmento;
+        return fragmento.toString();
 
     }
 
@@ -379,8 +389,20 @@ public class Modelo {
         }
 
         return fragmento;
+    }
 
+    private <T extends Comparable<T>> void procesarUnificacion(ILista lista, ILista lista2, Comparator<T> comparador) throws PosException, VacioException, NullException {
+        Ordenamiento<T> algsOrdenamientoEventos = new Ordenamiento<>();
+        algsOrdenamientoEventos.ordenarMergeSort(lista, comparador, false);
 
+        for (int i = 1; i <= lista.size(); i++) {
+            T actual = (T) lista.getElement(i);
+            T siguiente = (i + 1 <= lista.size()) ? (T) lista.getElement(i + 1) : null;
+
+            if (siguiente == null || comparador.compare(actual, siguiente) != 0) {
+                lista2.insertElement(actual, lista2.size() + 1);
+            }
+        }
     }
 
     public ILista unificar(ILista lista, String criterio) {
@@ -388,78 +410,18 @@ public class Modelo {
         ILista lista2 = new ArregloDinamico(1);
 
         if (criterio.equals("Vertice")) {
-            Comparator<Vertex<String, Landing>> comparador = null;
-
-            Ordenamiento<Vertex<String, Landing>> algsOrdenamientoEventos = new Ordenamiento<Vertex<String, Landing>>();
-
-            comparador = new Vertex.ComparadorXKey();
-
+            Comparator<Vertex<String, Landing>> comparador = new Vertex.ComparadorXKey();
 
             try {
-
-                if (lista != null) {
-                    algsOrdenamientoEventos.ordenarMergeSort(lista, comparador, false);
-
-                    for (int i = 1; i <= lista.size(); i++) {
-                        Vertex actual = (Vertex) lista.getElement(i);
-                        Vertex siguiente = (Vertex) lista.getElement(i + 1);
-
-                        if (siguiente != null) {
-                            if (comparador.compare(actual, siguiente) != 0) {
-                                lista2.insertElement(actual, lista2.size() + 1);
-                            }
-                        } else {
-                            Vertex anterior = (Vertex) lista.getElement(i - 1);
-
-                            if (anterior != null) {
-                                if (comparador.compare(anterior, actual) != 0) {
-                                    lista2.insertElement(actual, lista2.size() + 1);
-                                }
-                            } else {
-                                lista2.insertElement(actual, lista2.size() + 1);
-                            }
-                        }
-
-                    }
-                }
+                procesarUnificacion(lista, lista2, comparador);
             } catch (PosException | VacioException | NullException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         } else {
-            Comparator<Country> comparador = null;
-
-            Ordenamiento<Country> algsOrdenamientoEventos = new Ordenamiento<Country>();
-
-            comparador = new Country.ComparadorXNombre();
-
+            Comparator<Country> comparador = new Country.ComparadorXNombre();
             try {
-
-                if (lista != null) {
-                    algsOrdenamientoEventos.ordenarMergeSort(lista, comparador, false);
-                }
-
-                for (int i = 1; i <= lista.size(); i++) {
-                    Country actual = (Country) lista.getElement(i);
-                    Country siguiente = (Country) lista.getElement(i + 1);
-
-                    if (siguiente != null) {
-                        if (comparador.compare(actual, siguiente) != 0) {
-                            lista2.insertElement(actual, lista2.size() + 1);
-                        }
-                    } else {
-                        Country anterior = (Country) lista.getElement(i - 1);
-
-                        if (anterior != null) {
-                            if (comparador.compare(anterior, actual) != 0) {
-                                lista2.insertElement(actual, lista2.size() + 1);
-                            }
-                        } else {
-                            lista2.insertElement(actual, lista2.size() + 1);
-                        }
-                    }
-
-                }
+                procesarUnificacion(lista, lista2, comparador);
             } catch (PosException | VacioException | NullException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -628,7 +590,7 @@ public class Modelo {
         actualizarTablaLanding(landing1, vertice1);
         actualizarTablaLanding(landing2, vertice2);
         actualizarNombreCodigo(nombrecodigo, landing1);
-		
+
     }
 
     private void cargarConexiones() throws IOException {
