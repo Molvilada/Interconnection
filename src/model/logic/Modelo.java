@@ -389,8 +389,20 @@ public class Modelo {
         }
 
         return fragmento;
+    }
 
+    private <T extends Comparable<T>> void procesarUnificacion(ILista lista, ILista lista2, Comparator<T> comparador) throws PosException, VacioException, NullException {
+        Ordenamiento<T> algsOrdenamientoEventos = new Ordenamiento<>();
+        algsOrdenamientoEventos.ordenarMergeSort(lista, comparador, false);
 
+        for (int i = 1; i <= lista.size(); i++) {
+            T actual = (T) lista.getElement(i);
+            T siguiente = (i + 1 <= lista.size()) ? (T) lista.getElement(i + 1) : null;
+
+            if (siguiente == null || comparador.compare(actual, siguiente) != 0) {
+                lista2.insertElement(actual, lista2.size() + 1);
+            }
+        }
     }
 
     public ILista unificar(ILista lista, String criterio) {
@@ -398,78 +410,18 @@ public class Modelo {
         ILista lista2 = new ArregloDinamico(1);
 
         if (criterio.equals("Vertice")) {
-            Comparator<Vertex<String, Landing>> comparador = null;
-
-            Ordenamiento<Vertex<String, Landing>> algsOrdenamientoEventos = new Ordenamiento<Vertex<String, Landing>>();
-
-            comparador = new Vertex.ComparadorXKey();
-
+            Comparator<Vertex<String, Landing>> comparador = new Vertex.ComparadorXKey();
 
             try {
-
-                if (lista != null) {
-                    algsOrdenamientoEventos.ordenarMergeSort(lista, comparador, false);
-
-                    for (int i = 1; i <= lista.size(); i++) {
-                        Vertex actual = (Vertex) lista.getElement(i);
-                        Vertex siguiente = (Vertex) lista.getElement(i + 1);
-
-                        if (siguiente != null) {
-                            if (comparador.compare(actual, siguiente) != 0) {
-                                lista2.insertElement(actual, lista2.size() + 1);
-                            }
-                        } else {
-                            Vertex anterior = (Vertex) lista.getElement(i - 1);
-
-                            if (anterior != null) {
-                                if (comparador.compare(anterior, actual) != 0) {
-                                    lista2.insertElement(actual, lista2.size() + 1);
-                                }
-                            } else {
-                                lista2.insertElement(actual, lista2.size() + 1);
-                            }
-                        }
-
-                    }
-                }
+                procesarUnificacion(lista, lista2, comparador);
             } catch (PosException | VacioException | NullException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         } else {
-            Comparator<Country> comparador = null;
-
-            Ordenamiento<Country> algsOrdenamientoEventos = new Ordenamiento<Country>();
-
-            comparador = new Country.ComparadorXNombre();
-
+            Comparator<Country> comparador = new Country.ComparadorXNombre();
             try {
-
-                if (lista != null) {
-                    algsOrdenamientoEventos.ordenarMergeSort(lista, comparador, false);
-                }
-
-                for (int i = 1; i <= lista.size(); i++) {
-                    Country actual = (Country) lista.getElement(i);
-                    Country siguiente = (Country) lista.getElement(i + 1);
-
-                    if (siguiente != null) {
-                        if (comparador.compare(actual, siguiente) != 0) {
-                            lista2.insertElement(actual, lista2.size() + 1);
-                        }
-                    } else {
-                        Country anterior = (Country) lista.getElement(i - 1);
-
-                        if (anterior != null) {
-                            if (comparador.compare(anterior, actual) != 0) {
-                                lista2.insertElement(actual, lista2.size() + 1);
-                            }
-                        } else {
-                            lista2.insertElement(actual, lista2.size() + 1);
-                        }
-                    }
-
-                }
+                procesarUnificacion(lista, lista2, comparador);
             } catch (PosException | VacioException | NullException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
