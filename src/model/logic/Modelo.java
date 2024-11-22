@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Comparator;
+import java.util.List;
 
 
 /**
@@ -20,15 +21,11 @@ public class Modelo {
      * Atributos del modelo del mundo
      */
     private final ILista datos;
-
+    private final DataLoader dataLoader;
     private GrafoListaAdyacencia grafo;
-
     private ITablaSimbolos paises;
-
     private ITablaSimbolos points;
-
     private ITablaSimbolos landingidtabla;
-
     private ITablaSimbolos nombrecodigo;
 
     /**
@@ -38,6 +35,7 @@ public class Modelo {
      */
     public Modelo(int capacidad) {
         datos = new ArregloDinamico<>(capacidad);
+        dataLoader = new DataLoader();
     }
 
     private static float distancia(double lon1, double lat1, double lon2, double lat2) {
@@ -147,26 +145,24 @@ public class Modelo {
 
     }
 
-    private int calcularCantidadConexiones(ILista vertices) throws PosException, VacioException {
-        int cantidad = 0;
-        for (int i = 1; i <= vertices.size(); i++) {
-            cantidad += ((Vertex) vertices.getElement(i)).edges().size();
-        }
-        return cantidad;
-    }
-
 
     public String req2String() {
         String fragmento = "";
+
         ILista lista = landingidtabla.valueSet();
+
+        int cantidad = 0;
+
         int contador = 0;
 
         for (int i = 1; i <= lista.size(); i++) {
             try {
-                ILista landingVertices = (ILista) lista.getElement(i);
-                if (landingVertices.size() > 1 && contador < 10) {
+                if (((ILista) lista.getElement(i)).size() > 1 && contador <= 10) {
                     Landing landing = (Landing) ((Vertex) ((ILista) lista.getElement(i)).getElement(1)).getInfo();
-                    int cantidad = calcularCantidadConexiones(landingVertices);
+
+                    for (int j = 1; j <= ((ILista) lista.getElement(i)).size(); j++) {
+                        cantidad += ((Vertex) ((ILista) lista.getElement(i)).getElement(j)).edges().size();
+                    }
 
                     fragmento += "\n Landing " + "\n Nombre: " + landing.getName() + "\n País: " + landing.getPais() + "\n Id: " + landing.getId() + "\n Cantidad: " + cantidad;
 
@@ -609,8 +605,22 @@ public class Modelo {
 
     public void cargar() throws IOException {
         inicializarEstructuras();
-        cargarPaises();
-        cargarLandingPoints();
-        cargarConexiones();
+        List<Country> countries = dataLoader.cargarPaises("./data/countries.csv");
+        for (Country pais : countries) {
+            grafo.insertVertex(pais.getCapitalName(), pais);
+            paises.put(pais.getCountryName(), pais);
+        }
+
+        List<Landing> landings = dataLoader.cargarLandingPoints("./data/landing_points.csv");
+        for (Landing landing : landings) {
+            points.put(landing.getLandingId(), landing);
+        }
+
+        List<String[]> conexiones = dataLoader.cargarConexiones("./data/connections.csv");
+        for (String[] conexion : conexiones) {
+            procesarConexiones(conexion[0], conexion[1], conexion[2]);
+        }
+
+        conectarVerticesMismosClusters(grafo, landingidtabla);
     }
 }
