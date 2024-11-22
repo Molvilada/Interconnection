@@ -179,8 +179,26 @@ public class Modelo {
         }
 
         return fragmento;
-
     }
+
+    /**
+     * Obtiene los datos necesarios de un vértice: longitud, latitud y nombre.
+     *
+     * @param vertice El vértice a procesar.
+     * @return Un arreglo de tamaño 3: [logintud, latitud, nombre].
+     */
+    private Object[] obtenerDatosVertice(Vertex vertice) {
+        Object info = vertice.getInfo();
+        if (info instanceof Landing) {
+            Landing landing = (Landing) info;
+            return new Object[]{landing.getLongitude(), landing.getLatitude(), landing.getLandingId()};
+        } else if (info instanceof Country) {
+            Country country = (Country) info;
+            return new Object[]{country.getLongitude(), country.getLatitude(), country.getCapitalName()};
+        }
+        return new Object[]{0, 0, "Desconocido"};
+    }
+
 
     public String req3String(String pais1, String pais2) {
         Country pais11 = (Country) paises.get(pais1);
@@ -192,50 +210,32 @@ public class Modelo {
 
         float distancia = 0;
 
-        String fragmento = "Ruta: ";
+        StringBuilder fragmento = new StringBuilder("Ruta: ");
 
         float disttotal = 0;
-
-        double longorigen = 0;
-        double longdestino = 0;
-        double latorigen = 0;
-        double latdestino = 0;
-        String origennombre = "";
-        String destinonombre = "";
 
         while (!pila.isEmpty()) {
             Edge arco = ((Edge) pila.pop());
 
-            if (arco.getSource().getInfo().getClass().getName().equals("model.data_structures.Landing")) {
-                longorigen = ((Landing) arco.getSource().getInfo()).getLongitude();
-                latorigen = ((Landing) arco.getSource().getInfo()).getLongitude();
-                origennombre = ((Landing) arco.getSource().getInfo()).getLandingId();
-            }
-            if (arco.getSource().getInfo().getClass().getName().equals("model.data_structures.Country")) {
-                longorigen = ((Country) arco.getSource().getInfo()).getLongitude();
-                latorigen = ((Country) arco.getSource().getInfo()).getLongitude();
-                origennombre = ((Country) arco.getSource().getInfo()).getCapitalName();
-            }
-            if (arco.getDestination().getInfo().getClass().getName().equals("model.data_structures.Landing")) {
-                latdestino = ((Landing) arco.getDestination().getInfo()).getLatitude();
-                longdestino = ((Landing) arco.getDestination().getInfo()).getLatitude();
-                destinonombre = ((Landing) arco.getDestination().getInfo()).getLandingId();
-            }
-            if (arco.getDestination().getInfo().getClass().getName().equals("model.data_structures.Country")) {
-                longdestino = ((Country) arco.getDestination().getInfo()).getLatitude();
-                latdestino = ((Country) arco.getDestination().getInfo()).getLatitude();
-                destinonombre = ((Country) arco.getDestination().getInfo()).getCapitalName();
-            }
+            Object[] origenData = obtenerDatosVertice(arco.getSource());
+            double longorigen = (double) origenData[0];
+            double latorigen = (double) origenData[0];
+            String origennombre = origenData[2].toString();
+
+            Object[] destinoData = obtenerDatosVertice(arco.getDestination());
+            double latdestino = (double) destinoData[1];
+            double longdestino = (double) destinoData[1];
+            String destinonombre = destinoData[2].toString();
 
             distancia = distancia(longdestino, latdestino, longorigen, latorigen);
-            fragmento += "\n \n Origen: " + origennombre + "  Destino: " + destinonombre + "  Distancia: " + distancia;
+            fragmento.append("\n \n Origen: ").append(origennombre).append("  Destino: ").append(destinonombre).append("  Distancia: ").append(distancia);
             disttotal += distancia;
 
         }
 
-        fragmento += "\n Distancia total: " + disttotal;
+        fragmento.append("\n Distancia total: ").append(disttotal);
 
-        return fragmento;
+        return fragmento.toString();
 
     }
 
