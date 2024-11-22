@@ -1,7 +1,5 @@
 package model.data_structures;
 
-import java.util.Comparator;
-
 public class NodoTS<K extends Comparable<K>, V extends Comparable <V>> implements Comparable<NodoTS<K,V>>
 {
 	protected K llave;

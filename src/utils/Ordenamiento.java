@@ -7,121 +7,19 @@ import model.data_structures.NullException;
 import model.data_structures.PosException;
 import model.data_structures.VacioException;
 
-public final class Ordenamiento <T extends Comparable <T>>
-{
-
-	public void ordenarSeleccion(ILista<T> lista, Comparator<T> criterio, boolean ascendente ) throws PosException, VacioException
-	{
-		for (int i=1; i<=lista.size(); i++)
-		{
-			int posMayorMenor= i;
-			
-			for (int j=i+1; j<=lista.size(); j++)
-			{
-				int factorComparacion= (ascendente ? 1:-1)* criterio.compare(lista.getElement(posMayorMenor), lista.getElement(j));
-				if (factorComparacion > 0)
-				{
-					posMayorMenor=j;
-				}
-			}
-			lista.exchange(posMayorMenor, i);
-		}
-	}
+public final class Ordenamiento <T extends Comparable <T>> {
 	
-	public void ordenarInsercion(ILista<T> lista, Comparator<T> criterio, boolean ascendente ) throws PosException, VacioException
-	{
-		
-		for (int i=2; i<= lista.size(); i++)
-		{
-			boolean enPosicion=false;
-			
-			for (int j=i; j>1 && !enPosicion; j--)
-			{
-				int factorComparacion= (ascendente ?1:-1) * criterio.compare(lista.getElement(j), lista.getElement(j-1));
-				if (factorComparacion<0)
-				{
-					lista.exchange(j, j-1);
-				}
-				else
-				{
-					enPosicion=true;
-				}
-			}
-		}
+	/**
+	 * Ordena una lista de elementos usando el algoritmo de ordenamiento QuickSort.
+	 * @param lista Lista de elementos a ordenar.
+	 * @param criterio Criterio de comparación.
+	 * @param ascendente true si se quiere ordenar de forma ascendente, false de forma descendente.
+	 * @throws PosException Si se intenta acceder a una posición inválida.
+	 * @throws VacioException Si la lista está vacía.
+	 * @throws NullException Si la lista es nula.
+	 */
 	
-	}
-	
-	public void ordenarShell (ILista<T> lista, Comparator<T> criterio, boolean ascendente ) throws PosException, VacioException
-	{
-		int n=lista.size();
-		int h=1;
-		
-		while(h<(n/3))
-		{
-			h=3*h +1;
-		}
-		
-		while(h>=1)
-		{
-			for(int i=h+1; i<=n; i++)
-			{
-				boolean enPosicion= false;
-				
-				for(int j=i; j>h && !enPosicion; j-=h)
-				{
-					int factorComparacion= (ascendente ?1:-1)*criterio.compare(lista.getElement(j), lista.getElement(j-h));
-					
-					if (factorComparacion<0)
-					{
-						lista.exchange(j, j-h);
-					}
-					else
-					{
-						enPosicion=true;
-					}
-				}
-			}
-			
-			h/=3;
-		}
-	}
-	
-	public void sort (ILista<T> lista, Comparator<T> criterio, boolean ascendente, int lo, int hi) throws PosException, VacioException
-	{
-		if(lo>=hi)
-			return;
-		int pivot= partition(lista, criterio, ascendente, lo, hi);
-		sort(lista, criterio, ascendente, lo, pivot-1);
-		sort(lista, criterio, ascendente, pivot +1, hi);
-	}
-	
-	public void ordenarQuickSort(ILista<T> lista, Comparator<T> criterio, boolean ascendente) throws PosException, VacioException
-	{
-		sort(lista, criterio, ascendente, 1, lista.size());
-	}
-	
-	public int partition(ILista<T> lista, Comparator<T> criterio, boolean ascendente, int lo, int hi) throws PosException, VacioException
-	{
-		int follower, leader;
-		follower=leader=lo;
-		
-		while(leader<hi)
-		{
-			int factorComparacion=(ascendente?1:-1)*criterio.compare(lista.getElement(leader), lista.getElement(hi));
-			if (factorComparacion<0)
-			{
-				lista.exchange(follower, leader);
-				follower++;
-			}
-			leader++;
-		}
-		
-		lista.exchange(follower, hi);
-		
-		return follower;
-	}
-	
-	public final void ordenarMergeSort(ILista<T> lista, Comparator<T> criterio, boolean ascendente) throws PosException, VacioException, NullException
+	public void ordenarMergeSort(ILista<T> lista, Comparator<T> criterio, boolean ascendente) throws PosException, VacioException, NullException
 	{
 		int size = lista.size();
 		if(size > 1)

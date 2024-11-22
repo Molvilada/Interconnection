@@ -69,9 +69,7 @@ public class Connection
 		this.length = length;
 	}
 
-	public int getRfs() {
-		return rfs;
-	}
+
 
 	public void setRfs(int rfs) {
 		this.rfs = rfs;
@@ -91,10 +89,6 @@ public class Connection
 
 	public void setCapacity(Double capacity) {
 		this.capacity = capacity;
-	}
-
-	public String getCableid() {
-		return cableid;
 	}
 
 	public void setCableid(String cableid) {

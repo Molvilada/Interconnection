@@ -76,17 +76,13 @@ public class Country implements Comparable <Country>
 		this.longitude = longitude;
 	}
 
-	public String getCode() {
-		return code;
-	}
+
 
 	public void setCode(String code) {
 		this.code = code;
 	}
 
-	public String getContinentName() {
-		return continentName;
-	}
+
 
 	public void setContinentName(String continentName) {
 		this.continentName = continentName;

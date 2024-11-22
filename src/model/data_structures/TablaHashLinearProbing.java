@@ -128,13 +128,13 @@ public class TablaHashLinearProbing <K extends Comparable<K>, V extends Comparab
 	}
 
 	@Override
-	public V remove(K key) 
+	public V remove(K key)
 	{
 		int posicion=hash(key);
 		V retornar=null;
 		boolean encontroNull= false;
 
-		try 
+		try
 		{
 
 			while(retornar==null && !encontroNull)
@@ -170,7 +170,7 @@ public class TablaHashLinearProbing <K extends Comparable<K>, V extends Comparab
 				throw new PosException("No está el elemento");
 			}
 		}
-		catch (PosException | VacioException e) 
+		catch (PosException | VacioException e)
 		{
 			e.printStackTrace();
 		}
@@ -355,15 +355,7 @@ public class TablaHashLinearProbing <K extends Comparable<K>, V extends Comparab
 
 	}
 
-	public int darMinicial()
-	{
-		return minicial;
-	}
 
-	public int darMfinal()
-	{
-		return tamanoTabla;
-	}
 
 	public String toString()
 	{
