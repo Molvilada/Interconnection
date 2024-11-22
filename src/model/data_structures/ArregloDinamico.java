@@ -253,8 +253,6 @@ public class ArregloDinamico<T extends Comparable<T>> implements ILista<T> {
     public void changeInfo(int pos, T element) throws PosException, VacioException, NullException {
         if (pos < 1 || pos > tamanoMax) {
             throw new PosException("La posición no es válida");
-        } else if (pos > tamanoMax) {
-            throw new PosException("La posición no es válida");
         } else if (isEmpty()) {
             throw new VacioException("La lista está vacía");
         } else if (element == null) {

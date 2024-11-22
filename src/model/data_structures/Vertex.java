@@ -148,7 +148,7 @@ public class Vertex<K extends Comparable<K>, V extends Comparable<V>> implements
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            cola.insert(actual.getWeight(), actual);
+            if (actual != null) cola.insert(actual.getWeight(), actual);
         }
     }
 
