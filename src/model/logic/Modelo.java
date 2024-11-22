@@ -128,7 +128,7 @@ public class Modelo {
 
 
     public String req2String() {
-        String fragmento = "";
+        StringBuilder fragmento = new StringBuilder();
 
         ILista lista = landingidtabla.valueSet();
 
@@ -145,7 +145,7 @@ public class Modelo {
                         cantidad += ((Vertex) ((ILista) lista.getElement(i)).getElement(j)).edges().size();
                     }
 
-                    fragmento += "\n Landing " + "\n Nombre: " + landing.getName() + "\n País: " + landing.getPais() + "\n Id: " + landing.getId() + "\n Cantidad: " + cantidad;
+                    fragmento.append("\n Landing " + "\n Nombre: ").append(landing.getName()).append("\n País: ").append(landing.getPais()).append("\n Id: ").append(landing.getId()).append("\n Cantidad: ").append(cantidad);
 
                     contador++;
                 }
@@ -155,7 +155,7 @@ public class Modelo {
 
         }
 
-        return fragmento;
+        return fragmento.toString();
     }
 
     /**
@@ -239,7 +239,7 @@ public class Modelo {
             ILista candidatos = new ArregloDinamico<>(1);
             for (int i = 1; i <= lista2.size(); i++) {
                 Edge arco = ((Edge) lista2.getElement(i));
-                distancia += arco.getWeight();
+                distancia += (int) arco.getWeight();
 
                 candidatos.insertElement(arco.getSource(), candidatos.size() + 1);
 
@@ -281,7 +281,7 @@ public class Modelo {
             e1.printStackTrace();
         }
 
-        if (fragmento.equals("")) {
+        if (fragmento.isEmpty()) {
             return "No hay ninguna rama";
         } else {
             return fragmento;
@@ -310,7 +310,7 @@ public class Modelo {
                     Vertex vertice2 = ((Edge) arcos.getElement(j)).getDestination();
 
                     Country pais = null;
-                    if (vertice2.getInfo().getClass().getName().equals("model.data_structures.Landing")) {
+                    if (vertice2.getInfo() instanceof Landing) {
                         Landing landing = (Landing) vertice2.getInfo();
                         pais = (Country) paises.get(landing.getPais());
                         countries.insertElement(pais, countries.size() + 1);

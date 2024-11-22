@@ -1,97 +1,80 @@
 package model.data_structures;
 
-public class Connection 
-{
-	private int origin;
-	
-	private int destination;
-	
-	private String name;
-	
-	private String cableid;
-	
-	private String length;
-	
-	private int rfs;
-	
-	private String owners;
-	
-	private Double capacity;
-	
-	public Connection(int porigin, int pdestination, String pname, String pcable, String plength, int prfs, String powners, Double pcapacity)
-	{
-		setOrigin(porigin);
-		
-		setDestination(pdestination);
-		
-		setName(pname);
-		
-		setCableid(pcable);
-		
-		setLength(plength);
-		
-		setRfs(prfs);
-		
-		setOwners(powners);
-		
-		setCapacity(pcapacity);
-	}
+public class Connection {
+    private int origin;
 
-	public int getOrigin() {
-		return origin;
-	}
+    private int destination;
 
-	public void setOrigin(int origin) {
-		this.origin = origin;
-	}
+    private String name;
 
-	public int getDestination() {
-		return destination;
-	}
+    private String owners;
 
-	public void setDestination(int destination) {
-		this.destination = destination;
-	}
+    private Double capacity;
 
-	public String getName() {
-		return name;
-	}
+    public Connection(int porigin, int pdestination, String pname, String pcable, String plength, int prfs, String powners, Double pcapacity) {
+        setOrigin(porigin);
 
-	public void setName(String name) {
-		this.name = name;
-	}
+        setDestination(pdestination);
 
-	public String getLength() {
-		return length;
-	}
+        setName(pname);
 
-	public void setLength(String length) {
-		this.length = length;
-	}
+        setCableid(pcable);
 
+        setLength(plength);
 
+        setRfs(prfs);
 
-	public void setRfs(int rfs) {
-		this.rfs = rfs;
-	}
+        setOwners(powners);
 
-	public String getOwners() {
-		return owners;
-	}
+        setCapacity(pcapacity);
+    }
 
-	public void setOwners(String owners) {
-		this.owners = owners;
-	}
+    public int getOrigin() {
+        return origin;
+    }
 
-	public Double getCapacity() {
-		return capacity;
-	}
+    public void setOrigin(int origin) {
+        this.origin = origin;
+    }
 
-	public void setCapacity(Double capacity) {
-		this.capacity = capacity;
-	}
+    public int getDestination() {
+        return destination;
+    }
 
-	public void setCableid(String cableid) {
-		this.cableid = cableid;
-	}
+    public void setDestination(int destination) {
+        this.destination = destination;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setLength(String length) {
+    }
+
+    public void setRfs(int rfs) {
+    }
+
+    public String getOwners() {
+        return owners;
+    }
+
+    public void setOwners(String owners) {
+        this.owners = owners;
+    }
+
+    public Double getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(Double capacity) {
+        this.capacity = capacity;
+    }
+
+    public void setCableid(String cableid) {
+    }
 }
