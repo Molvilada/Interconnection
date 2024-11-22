@@ -147,23 +147,26 @@ public class Modelo {
 
     }
 
+    private int calcularCantidadConexiones(ILista vertices) throws PosException, VacioException {
+        int cantidad = 0;
+        for (int i = 1; i <= vertices.size(); i++) {
+            cantidad += ((Vertex) vertices.getElement(i)).edges().size();
+        }
+        return cantidad;
+    }
+
+
     public String req2String() {
         String fragmento = "";
-
         ILista lista = landingidtabla.valueSet();
-
-        int cantidad = 0;
-
         int contador = 0;
 
         for (int i = 1; i <= lista.size(); i++) {
             try {
-                if (((ILista) lista.getElement(i)).size() > 1 && contador <= 10) {
+                ILista landingVertices = (ILista) lista.getElement(i);
+                if (landingVertices.size() > 1 && contador < 10) {
                     Landing landing = (Landing) ((Vertex) ((ILista) lista.getElement(i)).getElement(1)).getInfo();
-
-                    for (int j = 1; j <= ((ILista) lista.getElement(i)).size(); j++) {
-                        cantidad += ((Vertex) ((ILista) lista.getElement(i)).getElement(j)).edges().size();
-                    }
+                    int cantidad = calcularCantidadConexiones(landingVertices);
 
                     fragmento += "\n Landing " + "\n Nombre: " + landing.getName() + "\n País: " + landing.getPais() + "\n Id: " + landing.getId() + "\n Cantidad: " + cantidad;
 
